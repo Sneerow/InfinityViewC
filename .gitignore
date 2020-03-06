@@ -1,6 +1,7 @@
 # Custom files
 main
 *.swp
+*.glade~
 
 # Prerequisites
 *.d
