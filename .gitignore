@@ -1,3 +1,7 @@
+# Custom files
+main
+*.swp
+
 # Prerequisites
 *.d
 
