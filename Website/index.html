@@ -1,29 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <link rel="stylesheet" href="./templates/css/main.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <link rel="stylesheet" href="./templates/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <script src="./templates/js/main.js"></script>
+  <title>Infinity View</title>
 </head>
+
 <body>
-    <div class="header">
-
+  <div class="ui secondary pointing top menu stackable topmenu">
+    <a id="homeButton1" class="item active homeButton">
+      <img src="./templates/images/logoInfinity.png" alt="Infinity" class="ui mini image">
+    </a>
+    <a id="homeButton2" href="" class="active item homeButton">
+      <p>Accueil</p>
+    </a>
+    <a id="contactsButton"class="item contactsButton">
+      <p>Contacts</p>
+    </a>
+    <a id="downloadsButton" class="item downloadsButton">
+      <p>Téléchargements</p>
+    </a>
+    <div class="right menu">
+      <a href="https://github.com/Sneerow/InfinityViewC" target="_blank" class="item"><i class="github icon"></i></a>
     </div>
-    
+  </div>
 
-    <div class="view ui segment">
 
-            <div class="ui active dimmer">
-              <div class="ui indeterminate text loader">Preparing Files</div>
-            </div>
-            <p></p>
+  <div class="view ui">
 
+    <div class="ui active dimmer">
+      <div class="ui indeterminate text loader">Preparing Files</div>
     </div>
+    <p></p>
 
-    <div class="footer">
+  </div>
 
-    </div>
+  <div class="ui center aligned header bot">
+    <h5>Copyright © All Rights Reserved | 2020 | Developed by Infinty</h5>
+  </div>
 </body>
+
 </html>
