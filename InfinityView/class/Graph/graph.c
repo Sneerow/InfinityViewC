@@ -24,11 +24,13 @@ struct graph
         int list[1];    /* actual list of successors */
     } * alist[1];
 };
+
 struct file_content
 {
     char **text;
     size_t nb_line;
 };
+
 /* create a new graph with n vertices labeled 0..n-1 and no edges */
 Graph graph_create(int n)
 {
@@ -46,12 +48,68 @@ Graph graph_create(int n)
         g->alist[i] = malloc(sizeof(struct successors));
         assert(g->alist[i]);
 
-        g->alist[i]->d = 0;
+        g->alist[i]->d = i;
         g->alist[i]->len = 1;
         g->alist[i]->is_sorted = 1;
     }
 
     return g;
+}
+
+Graph add_successors(Graph g)
+{
+	g = realloc(g, sizeof(struct graph) 
+	+ sizeof(struct successors *) * (g->n));
+	assert(g->alist[g->n]);
+
+	g->alist[g->n] = malloc(sizeof(struct successors));
+	assert(g->alist[g->n]);
+
+	g->alist[g->n]->d = 20;
+	g->alist[g->n]->len = 1;
+	g->alist[g->n]->is_sorted = 1;
+	g->n++;
+
+	return g;
+}
+
+Graph remove_successors(Graph g, int i)
+{
+	assert(i >= 0);
+	assert(i < g->n);
+	int new_len;
+
+	while (i < (g->n - 1))
+	{
+
+		if (g->alist[i]->len >= g->alist[i + 1]->len)
+		{
+			new_len = g->alist[i]->len;
+			g->alist[i + 1] = realloc(g->alist[i + 1], 
+		sizeof(struct successors) + sizeof (int) * (new_len - 1));
+		}
+		else
+		{
+			new_len = g->alist[i + 1]->len;
+			g->alist[i + 1] = realloc(g->alist[i], 
+		sizeof(struct successors) + sizeof (int) * (new_len - 1));
+		}
+
+		struct successors *stock = malloc(sizeof(struct successors)
+		+ sizeof (int) * (new_len - 1));
+		*stock = *g->alist[i + 1];
+		*g->alist[i + 1] = *g->alist[i];
+		*g->alist[i] = *stock;
+		free(stock);
+		i++;
+
+	}
+
+	free(g->alist[g->n -1]);
+	g->n--;
+	g = realloc(g, sizeof(struct graph) 
+	+ sizeof(struct successors *) * (g->n));
+	return g;
 }
 
 /* free all space used by graph */
@@ -170,6 +228,7 @@ void graph_foreach(Graph g, int source,
         f(g, source, g->alist[source]->list[i], data);
     }
 }
+
 File_content load_file(char *filename)
 {
     FILE *fp;
@@ -225,9 +284,15 @@ void print_pointeur(File_content file)
 int main(int argc, char **argv)
 {
     (void)argc;
-    File_content file = load_file(argv[1]);
-    print_text(file);
-    free_text(file);
+    (void)argv;
+    //File_content file = load_file(argv[1]);
+    //print_text(file);
+    Graph g = graph_create(3);
+    printf("%d\n", g->n);
+    g = add_successors(g);  //pas tres bo
+    g = remove_successors(g, 0);
+    graph_destroy(g);
+    //free_text(file);
     return 0;
 }
 
