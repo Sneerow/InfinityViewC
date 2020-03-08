@@ -60,3 +60,19 @@ $(document).on("click" , ".downloadsButton", function(event) {
     });
 
 });
+
+// Discovery button
+$(document).on("click" , ".discoveryButton", function(event) {
+    console.log('test');
+    event.preventDefault();
+    $(".view").empty().append(loader);
+    $(".active").removeClass('active');
+    $(".active").removeClass('active');
+    $("#discoveryButton").addClass("active");
+    
+    $.get("./templates/html/discovery.html", function(data) {
+        $('.view').empty().append(data);
+
+    });
+
+});
