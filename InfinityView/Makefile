@@ -2,11 +2,11 @@
 CC = gcc
 
 CPPFLAGS = `pkg-config --libs --cflags gtk+-3.0`
-CFLAGS = -std=c99 -Wall -Wextra -O3 -g
+CFLAGS = -std=c99 -Wall -Wextra -O3 -g 
 LDFLAGS =
 LDLIBS = `pkg-config --libs --cflags gtk+-3.0`
 
-OBJ = main.o
+OBJ = main.o class/Gtk/init.o class/Gtk/file_menu.o class/Gtk/edit_menu.o
 
 all: main
 
