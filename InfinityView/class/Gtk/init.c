@@ -8,6 +8,7 @@
 // Init functions
 void init_menu_bar(struct menu_bar *menubar, GtkBuilder *builder) 
 {
+	
 	// File Item
 	menubar->new = GTK_WIDGET(gtk_builder_get_object(builder, "new_menuItem"));	
 	menubar->open = GTK_WIDGET(gtk_builder_get_object(builder, "open_menuItem"));	
