@@ -22,6 +22,7 @@ struct text_editor {
 	GtkTextBuffer *buffer;
 	GtkWidget *window;
 	GtkWidget *status;
+	gchar *filename;
 };
 
 // Init struct using glade file

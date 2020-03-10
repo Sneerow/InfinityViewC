@@ -7,26 +7,7 @@
 #include "class/Gtk/init.h"
 #include "class/Gtk/file_menu.h"
 #include "class/Gtk/edit_menu.h"
-
-void status_bar_update(GtkWidget *widget, struct text_editor *texteditor)
-{
-	gtk_widget_show(texteditor->status);
-
-	gint row;
-	gint col;
-	GtkTextIter iter;
-
-	gtk_text_buffer_get_iter_at_mark(texteditor->buffer, &iter, 
-			gtk_text_buffer_get_insert(texteditor->buffer));
-
-	row = gtk_text_iter_get_line(&iter);
-	col = gtk_text_iter_get_line_offset(&iter);
-
-	gchar *info = g_strdup_printf("row: %d, col: %d", row, col);
-
-	gtk_label_set_text(GTK_LABEL(texteditor->status), info);
-	g_free(info);
-}
+#include "class/Gtk/text_editor.h"
 
 int main(int argc, char *argv[])
 {

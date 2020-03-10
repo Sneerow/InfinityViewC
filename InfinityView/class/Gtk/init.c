@@ -32,6 +32,25 @@ void init_text_editor(struct text_editor *texteditor, GtkBuilder *builder, GtkWi
 	texteditor->buffer = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "buffer"));
 	texteditor->status = GTK_WIDGET(gtk_builder_get_object(builder, "text_editor_info_label"));
 	texteditor->window = window;
+	texteditor->filename = malloc(sizeof(gchar) * 500);
+	memset(texteditor->filename, 0, 500);
+	
+	/* 
+	** ==========
+	** CREATE TAG
+	** ==========
+	*/
+	gtk_text_buffer_create_tag(texteditor->buffer, "size20",
+		"size", 20 * PANGO_SCALE, 
+		NULL);
+
+	gtk_text_buffer_create_tag(texteditor->buffer, "blue",
+		"foreground", "blue",
+		NULL);
+
+	gtk_text_buffer_create_tag(texteditor->buffer, "none",
+		"foreground", "black",
+		NULL);
 }
 
 // Free function
@@ -42,5 +61,6 @@ void free_menu_bar(struct menu_bar *menubar)
 
 void free_text_editor(struct text_editor *texteditor)
 {
+	free(texteditor->filename);
 	free(texteditor);
 }
