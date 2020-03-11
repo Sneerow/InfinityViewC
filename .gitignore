@@ -2,6 +2,7 @@
 main
 *.swp
 *.glade~
+.vscode
 
 # Prerequisites
 *.d
