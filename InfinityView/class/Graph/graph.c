@@ -236,7 +236,7 @@ File_content load_file(char *filename)
     ssize_t read;
     size_t nb_line = 1;
     File_content fc = malloc(sizeof(struct file_content));
-    fc->text = malloc(sizeof(char *));
+    fc->text = malloc(malloc(1024));
     fp = fopen(filename, "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
@@ -247,7 +247,7 @@ File_content load_file(char *filename)
         printf("%s", fc->text[nb_line - 1]);
         nb_line++;
         fc->text = realloc(fc->text, sizeof(char *) * nb_line);
-        fc->text[nb_line - 1] = malloc(sizeof(char *));
+        fc->text[nb_line - 1] = malloc(1024);
         if (fc->text == NULL)
             exit(EXIT_FAILURE);
     }
