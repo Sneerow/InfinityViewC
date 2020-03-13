@@ -9,6 +9,23 @@
 #include "class/Gtk/edit_menu.h"
 #include "class/Gtk/text_editor.h"
 
+void add_int(GtkWidget *widget, struct text_editor *texteditor)
+{
+	gtk_widget_show(widget);
+
+	GtkTextIter iter;
+	GtkTextMark *cursor;
+
+	gtk_text_buffer_get_iter_at_mark(texteditor->buffer, &iter, 
+			gtk_text_buffer_get_insert(texteditor->buffer));
+
+	cursor = gtk_text_buffer_get_mark(texteditor->buffer, "insert");
+	
+	gtk_text_buffer_get_iter_at_mark(texteditor->buffer, &iter, cursor);
+
+	gtk_text_buffer_insert(texteditor->buffer, &iter, "int", 3);
+}
+
 int main(int argc, char *argv[])
 {
 	// ========
@@ -29,6 +46,8 @@ int main(int argc, char *argv[])
 	init_menu_bar(menubar, builder);
 	struct text_editor *texteditor = malloc(sizeof(struct text_editor));
 	init_text_editor(texteditor, builder, window);
+
+	GtkWidget *button_test = GTK_WIDGET(gtk_builder_get_object(builder, "int_button"));
 
 	// Init shortcut (accel group)
 	GtkAccelGroup *accel_group = NULL;
@@ -62,6 +81,8 @@ int main(int argc, char *argv[])
 
 	g_signal_connect(texteditor->buffer, "changed", G_CALLBACK(status_bar_update), texteditor);
 
+	g_signal_connect(button_test, "clicked", G_CALLBACK(add_int), texteditor);
+	
 	// Hidding object
 	gtk_widget_hide(texteditor->text_view);
 	gtk_widget_hide(texteditor->file_label);

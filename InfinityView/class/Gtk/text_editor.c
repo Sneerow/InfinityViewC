@@ -5,6 +5,30 @@
 
 #include "init.h"
 
+// Function to show window
+void show_window(struct text_editor *texteditor, GtkTextIter pos)
+{
+    GdkWindow *win;
+    GdkRectangle buf_loc;
+    gint win_x;
+    gint win_y;
+    gint x;
+    gint y;
+
+    gtk_text_view_get_iter_location(GTK_TEXT_VIEW(texteditor->text_view), &pos, &buf_loc);
+
+    gtk_text_view_buffer_to_window_coords(GTK_TEXT_VIEW(texteditor->text_view),
+            GTK_TEXT_WINDOW_WIDGET, buf_loc.x, buf_loc.y, &win_x, &win_y);
+
+    win = gtk_text_view_get_window(GTK_TEXT_VIEW((texteditor->text_view)), GTK_TEXT_WINDOW_WIDGET);
+    gdk_window_get_origin(win, &x, &y);
+
+    gtk_window_move(GTK_WINDOW(texteditor->tip_window), win_x + x, win_y + y + buf_loc.height);
+
+    gtk_widget_show(texteditor->tip_window);
+
+}
+
 // Function to apply a tag
 void buffer_tag_apply(struct text_editor *texteditor, const GtkTextIter *start, 
     const GtkTextIter *end, char *tag_name)
@@ -91,5 +115,8 @@ void status_bar_update(GtkWidget *widget, struct text_editor *texteditor)
 	gchar *info = g_strdup_printf("row: %d, col: %d", row, col);
 
 	gtk_label_set_text(GTK_LABEL(texteditor->status), info);
+
+    show_window(texteditor, iter);
+
 	g_free(info);
 }
