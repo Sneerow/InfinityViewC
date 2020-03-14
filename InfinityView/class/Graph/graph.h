@@ -4,7 +4,7 @@
 typedef struct graph *Graph;
 typedef struct file_content * File_content;
 /* create a new graph with n vertices labeled 0..n-1 and no edges */
-Graph graph_create(int n);
+Graph graph_create(int n, char* word);
 
 /* free all space used by graph */
 void graph_destroy(Graph);
