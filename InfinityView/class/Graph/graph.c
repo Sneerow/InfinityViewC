@@ -18,21 +18,21 @@ struct graph
     int m; /* number of edges */
     struct successors
     {
-        int d;          /* number of successors */
-        int len;        /* number of slots in array */
+        int d;
+        int is_word;	/* number of successors */
+	char label;
+       	int len;        /* number of slots in array */
         char is_sorted; /* true if list is already sorted */
         int list[1];    /* actual list of successors */
     } * alist[1];
 };
-
 struct file_content
 {
     char **text;
     size_t nb_line;
 };
-
 /* create a new graph with n vertices labeled 0..n-1 and no edges */
-Graph graph_create(int n)
+Graph graph_create(int n, char * word)
 {
     Graph g;
     int i;
@@ -43,73 +43,18 @@ Graph graph_create(int n)
     g->n = n;
     g->m = 0;
 
-    for (i = 0; i < n; i++)
+    for (i = 0, char * k = word ; i < n; i++,k++)
     {
         g->alist[i] = malloc(sizeof(struct successors));
         assert(g->alist[i]);
-
-        g->alist[i]->d = i;
+	g->alist[i]->label = *k;
+	g->alist[i]->is_word = i == n-1;
+        g->alist[i]->d = 0;
         g->alist[i]->len = 1;
         g->alist[i]->is_sorted = 1;
     }
 
     return g;
-}
-
-Graph add_successors(Graph g)
-{
-	g = realloc(g, sizeof(struct graph) 
-	+ sizeof(struct successors *) * (g->n));
-	assert(g->alist[g->n]);
-
-	g->alist[g->n] = malloc(sizeof(struct successors));
-	assert(g->alist[g->n]);
-
-	g->alist[g->n]->d = 20;
-	g->alist[g->n]->len = 1;
-	g->alist[g->n]->is_sorted = 1;
-	g->n++;
-
-	return g;
-}
-
-Graph remove_successors(Graph g, int i)
-{
-	assert(i >= 0);
-	assert(i < g->n);
-	int new_len;
-
-	while (i < (g->n - 1))
-	{
-
-		if (g->alist[i]->len >= g->alist[i + 1]->len)
-		{
-			new_len = g->alist[i]->len;
-			g->alist[i + 1] = realloc(g->alist[i + 1], 
-		sizeof(struct successors) + sizeof (int) * (new_len - 1));
-		}
-		else
-		{
-			new_len = g->alist[i + 1]->len;
-			g->alist[i + 1] = realloc(g->alist[i], 
-		sizeof(struct successors) + sizeof (int) * (new_len - 1));
-		}
-
-		struct successors *stock = malloc(sizeof(struct successors)
-		+ sizeof (int) * (new_len - 1));
-		*stock = *g->alist[i + 1];
-		*g->alist[i + 1] = *g->alist[i];
-		*g->alist[i] = *stock;
-		free(stock);
-		i++;
-
-	}
-
-	free(g->alist[g->n -1]);
-	g->n--;
-	g = realloc(g, sizeof(struct graph) 
-	+ sizeof(struct successors *) * (g->n));
-	return g;
 }
 
 /* free all space used by graph */
@@ -228,7 +173,6 @@ void graph_foreach(Graph g, int source,
         f(g, source, g->alist[source]->list[i], data);
     }
 }
-
 File_content load_file(char *filename)
 {
     FILE *fp;
@@ -236,15 +180,15 @@ File_content load_file(char *filename)
     ssize_t read;
     size_t nb_line = 1;
     File_content fc = malloc(sizeof(struct file_content));
-    fc->text = malloc(malloc(1024));
+    fc->text = malloc(sizeof(char *));
     fp = fopen(filename, "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
 
     while ((read = getline(&fc->text[nb_line - 1], &len, fp) != -1))
     {
-        printf("Retrieved line of length %zu:\n", len);
-        printf("%s", fc->text[nb_line - 1]);
+        // printf("Retrieved line of length %zu:\n", len);
+        // printf("%s\n", fc->text[nb_line - 1]);
         nb_line++;
         fc->text = realloc(fc->text, sizeof(char *) * nb_line);
         fc->text[nb_line - 1] = malloc(1024);
@@ -261,14 +205,13 @@ void free_text(File_content file)
     for (size_t i = 0; i <= file->nb_line; i++)
     {
         free(file->text[i]);
-
     }
     free(file->text);
     free(file);
 }
 void print_text(File_content file)
 {
-    for (size_t i = 0; i < file->nb_line; i++)
+    for (size_t i = 0; i < file->nb_line - 1; i++)
     {
         printf("line = %s", file->text[i]);
     }
@@ -284,15 +227,9 @@ void print_pointeur(File_content file)
 int main(int argc, char **argv)
 {
     (void)argc;
-    (void)argv;
-    //File_content file = load_file(argv[1]);
-    //print_text(file);
-    Graph g = graph_create(3);
-    printf("%d\n", g->n);
-    g = add_successors(g);  //pas tres bo
-    g = remove_successors(g, 0);
-    graph_destroy(g);
-    //free_text(file);
+    File_content file = load_file(argv[1]);
+    print_text(file);
+    free_text(file);
     return 0;
 }
 
