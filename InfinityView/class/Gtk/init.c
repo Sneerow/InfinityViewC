@@ -35,7 +35,15 @@ void init_text_editor(struct text_editor *texteditor, GtkBuilder *builder, GtkWi
 	texteditor->window = window;
 	texteditor->filename = malloc(sizeof(gchar) * 500);
 	memset(texteditor->filename, 0, 500);
-	
+	texteditor->tip_window = GTK_WIDGET(gtk_builder_get_object(builder, "combo_window"));
+	/*texteditor->tip_window = gtk_window_new(GTK_WINDOW_POPUP);
+	//gtk_container_set_border_width(GTK_CONTAINER(texteditor->tip_window), 1);
+
+	GtkWidget *label = gtk_label_new("combo_label");
+	gtk_label_set_text(GTK_LABEL(label), "test");
+
+	gtk_container_add(GTK_CONTAINER(texteditor->tip_window), label);
+	*/
 	/* 
 	** ==========
 	** CREATE TAG

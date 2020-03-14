@@ -23,6 +23,7 @@ struct text_editor {
 	GtkWidget *window;
 	GtkWidget *status;
 	gchar *filename;
+	GtkWidget *tip_window;
 };
 
 // Init struct using glade file
