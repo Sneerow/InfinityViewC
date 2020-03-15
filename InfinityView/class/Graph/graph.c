@@ -16,12 +16,13 @@ struct graph
 {
     int n; /* number of vertices */
     int m; /* number of edges */
+    char label;
     struct successors
     {
         int d;
-        int is_word;	/* number of successors */
-	char label;
-       	int len;        /* number of slots in array */
+        int is_word; /* number of successors */
+        char label;
+        int len;        /* number of slots in array */
         char is_sorted; /* true if list is already sorted */
         int list[1];    /* actual list of successors */
     } * alist[1];
@@ -32,7 +33,7 @@ struct file_content
     size_t nb_line;
 };
 /* create a new graph with n vertices labeled 0..n-1 and no edges */
-Graph graph_create(int n, char * word)
+Graph graph_create(int n, char *word)
 {
     Graph g;
     int i;
@@ -42,16 +43,24 @@ Graph graph_create(int n, char * word)
 
     g->n = n;
     g->m = 0;
-char * k;
-    for ( k = word, i = 0 ; i < n; i++,k++)
+    char *k;
+    for (k = word, i = 0; i < n; i++, k++)
     {
+        if (k == word)
+        {
+            g->label = *k;
+        }
         g->alist[i] = malloc(sizeof(struct successors));
         assert(g->alist[i]);
-	g->alist[i]->label = *k;
-	g->alist[i]->is_word = i == n-1;
+        g->alist[i]->label = *k;
+        g->alist[i]->is_word = i == n - 1;
         g->alist[i]->d = 0;
         g->alist[i]->len = 1;
         g->alist[i]->is_sorted = 1;
+    }
+    for (i = 1; i < n; i++)
+    {
+        graph_add_edge(g, i - 1, i);
     }
 
     return g;
@@ -59,86 +68,95 @@ char * k;
 
 Graph add_successors(Graph g)
 {
-	g = realloc(g, sizeof(struct graph) 
-	+ sizeof(struct successors *) * (g->n));
-	assert(g->alist[g->n]);
+    g = realloc(
+        g, sizeof(struct graph) + sizeof(struct successors *) * (g->n));
+    assert(g->alist[g->n]);
 
-	g->alist[g->n] = malloc(sizeof(struct successors));
-	assert(g->alist[g->n]);
+    g->alist[g->n] = malloc(sizeof(struct successors));
+    assert(g->alist[g->n]);
 
-	g->alist[g->n]->d = 20;
-	g->alist[g->n]->len = 1;
-	g->alist[g->n]->is_sorted = 1;
-	g->n++;
+    g->alist[g->n]->d = 0;
+    g->alist[g->n]->len = 1;
+    g->alist[g->n]->is_sorted = 1;
+    g->n++;
 
-	return g;
+    return g;
 }
 
 Graph remove_successors(Graph g, int i)
 {
-	assert(i >= 0);
-	assert(i < g->n);
-	int new_len;
-	int father;
+    assert(i >= 0);
+    assert(i < g->n);
+    int new_len;
+    int father;
+    int oldpos = i;
 
-	for(int j = 0; j < g->n; j++)
-	{
-		for(int k = 0; k < g->alist[j]->len-1; k++)
-		{
-			if(g->alist[j]->list[k] == i)
-			{
-				father = j;
-			}
-		}
-	}
+    // find the parent node of i
+    for (int j = 0; j < g->n; j++)
+    {
+        for (int k = 0; k < g->alist[j]->len - 1; k++)
+        {
+            if (g->alist[j]->list[k] == i)
+            {
+                father = j;
+            }
+        }
+    }
 
-	int oldlen = g->alist[father]->len;
-	g->alist[father] = realloc(g->alist[father], sizeof(struct successors) + sizeof(int) * (g->alist[father]->len + g->alist[i]->len));
+    // realloc size of adjlist father in order to add it i adjlist
+    int oldlen = g->alist[father]->len;
+    g->alist[father] = realloc(g->alist[father],
+        sizeof(struct successors)
+            + sizeof(int) * (g->alist[father]->len + g->alist[i]->len));
+    for (int z = oldlen; z < oldlen + g->alist[i]->len; z++)
+    {
+        g->alist[father]->list[z] = g->alist[i]->list[z - oldlen] - 1;
+    }
 
-	for(int z = oldlen; z < oldlen + g->alist[i]->len; z++)
-	{
-		g->alist[father]->list[z] = g->alist[i]->list[z - oldlen] - 1;
-	}
+    // swap the i node to the end of the list
+    while (i < (g->n - 1))
+    {
+        if (g->alist[i]->len >= g->alist[i + 1]->len)
+        {
+            new_len = g->alist[i]->len;
+            g->alist[i + 1] = realloc(g->alist[i + 1],
+                sizeof(struct successors) + sizeof(int) * (new_len - 1));
+        }
+        else
+        {
+            new_len = g->alist[i + 1]->len;
+            g->alist[i + 1] = realloc(g->alist[i],
+                sizeof(struct successors) + sizeof(int) * (new_len - 1));
+        }
 
-	while (i < (g->n - 1))
-	{
+        struct successors *stock
+            = malloc(sizeof(struct successors) + sizeof(int) * (new_len - 1));
+        *stock = *g->alist[i + 1];
+        *g->alist[i + 1] = *g->alist[i];
+        *g->alist[i] = *stock;
+        free(stock);
+        i++;
+    }
 
-		if (g->alist[i]->len >= g->alist[i + 1]->len)
-		{
-			new_len = g->alist[i]->len;
-			g->alist[i + 1] = realloc(g->alist[i + 1], 
-		sizeof(struct successors) + sizeof (int) * (new_len - 1));
-		}
-		else
-		{
-			new_len = g->alist[i + 1]->len;
-			g->alist[i + 1] = realloc(g->alist[i], 
-		sizeof(struct successors) + sizeof (int) * (new_len - 1));
-		}
+    // free the last node
+    free(g->alist[g->n - 1]);
+    g->n--;
+    g = realloc(
+        g, sizeof(struct graph) + sizeof(struct successors *) * (g->n));
 
-		struct successors *stock = malloc(sizeof(struct successors)
-		+ sizeof (int) * (new_len - 1));
-		*stock = *g->alist[i + 1];
-		*g->alist[i + 1] = *g->alist[i];
-		*g->alist[i] = *stock;
-		free(stock);
-		i++;
+    // replace all the nedge in the list
+    for (int y = 0; y < g->n; y++)
+    {
+        for (int f = 0; f < g->alist[y]->len; f++)
+        {
+            if (g->alist[f]->list[f] > oldpos)
+            {
+                g->alist[f]->list[f]--;
+            }
+        }
+    }
 
-	}
-
-	free(g->alist[g->n -1]);
-	g->n--;
-	g = realloc(g, sizeof(struct graph)                                                                  + sizeof(struct successors *) * (g->n));
-
-	for(int y = father + 1; y < g->n; y++)
-	{
-		for(int f = 0; f < g->alist[y]->len; f++)
-		{
-			g->alist[f]->list[f]--;
-		}
-	}
-
-	return g;
+    return g;
 }
 
 /* free all space used by graph */
@@ -173,6 +191,41 @@ void graph_add_edge(Graph g, int u, int v)
 
     /* bump edge count */
     g->m++;
+}
+
+void graph_remove_edge(Graph g, int u, int v)
+{
+    // check if u and v exist
+    assert(u >= 0);
+    assert(u < g->n);
+    assert(v >= 0);
+    assert(v < g->n);
+
+    // find pos of v in adjlist u
+    int vpos;
+    for (int b = 0; b < g->alist[u]->len; b++)
+    {
+        if (v == g->alist[u]->list[b])
+        {
+            vpos = b;
+            break;
+        }
+    }
+
+    // swap
+    int temp;
+    for (int w = vpos; w < g->alist[u]->len - 1; w++)
+    {
+        temp = g->alist[u]->list[w];
+        g->alist[u]->list[w] = g->alist[u]->list[w + 1];
+        g->alist[u]->list[w + 1] = temp;
+    }
+
+    g->alist[u]->len--;
+    g->alist[u]->d--;
+    g->m--;
+    g->alist[u] = realloc(g->alist[u],
+        sizeof(struct successors) + sizeof(int) * (g->alist[u]->len - 1))
 }
 
 /* return the number of vertices in the graph */
@@ -284,6 +337,37 @@ File_content load_file(char *filename)
     fc->nb_line = nb_line - 1;
     return fc;
 }
+
+Graph build_graph(File_content file)
+{
+    char *current = file->text;
+    size_t count = 0;
+    int is_added = 0;
+    Graph *graph_list = malloc(sizeof(Graph));
+    graph_list = graphe_create(strlen(current), current);
+    count++;
+    for (char *k = file->text + 1; k - file->text < file->count; k++)
+    {
+        for (size_t p = 0; p < count; p++)
+        {
+            if (graph_list[p]->label == *k)
+            {
+                // TODO add_word(graph_list[p], k);
+                is_added = 1;
+            }
+        }
+        if (!is_added)
+        {
+            graph_list
+                = realloc(graph_list, sizeof(graph_list) + sizeof(Graph));
+            graph_list[count] = grah_create(strlen(k), k);
+            count++;
+        }
+        is_added = 0;
+    }
+    return graph_list;
+}
+
 void free_text(File_content file)
 {
     for (size_t i = 0; i <= file->nb_line; i++)
