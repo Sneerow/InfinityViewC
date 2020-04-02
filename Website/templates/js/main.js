@@ -83,6 +83,7 @@ $(document).on("click" , ".discoveryButton", function(event) {
     loader_append(".view");
 
     $.get("./templates/html/discovery.html", function(data) {
+        
         $('.view').empty().append(data);
 
     });
